@@ -1,17 +1,14 @@
 #ifndef MINIPROJECT2_ENTER_H
 #define MINIPROJECT2_ENTER_H
 #include<string>
-
 using namespace std;
-
 string *username1, *password1, *username2, *password2, *given_username, *given_password;
 int members = 0;
-
-void make_an_account(int log_in)
+int make_an_account(int log_in)
 {
-
     bool check_username = false;
     bool check = false;
+    int keeper;
     switch(log_in)
     {
         case 1:
@@ -66,6 +63,7 @@ void make_an_account(int log_in)
                 username2 = nullptr;
                 password2 = nullptr;
             }
+            return (members - 1);
             break;
         case 2:
         {
@@ -81,8 +79,9 @@ void make_an_account(int log_in)
                 {
                     if(given_password[0] == password1[i])
                     {
-                        cout<<"welcome\n";
+                        cout<<"welcome "<<given_username[0]<<" :)"<<endl;
                         check = true;
+                        keeper = i;
                         delete [] given_username;
                         delete [] given_password;
                         break;
@@ -91,13 +90,12 @@ void make_an_account(int log_in)
             }
             if(!check)
             {
-                cout<<"your username or password is incorrect. please try again\n";
+                cout<<"your username or password is incorrect. please try again.\n";
                 make_an_account(log_in);
             }
+            return keeper;
             break;
         }
-
     }
 }
-
 #endif
