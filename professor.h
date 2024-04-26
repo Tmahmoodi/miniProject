@@ -113,13 +113,30 @@ public:
         test_options_in_output = 4;
     }
 };
+class student
+{
+private:
+    string StudentUsername;
+    string StudentPassword;
+public:
+    void set()
+    {
+        cout<<"please enter username of your student: ";
+        getline(cin>>ws, StudentUsername);
+        cout<<"please enter password of your student: ";
+        getline(cin>>ws, StudentPassword);
+    }
+};
+
 class professor
 {
 private:
-    int professor_management, number_of_exams = 0;
+    int professor_management ,number_of_added_student,keeper, number_of_students , number_of_exams = 0;
     bool full_exam_array = false;
+    bool first_list = true;
     bool designed_exam = false;
     exam *designed_exams, *helper;
+    student *main_list, *helper_list;
 public:
     void professor_panel()
     {
@@ -177,6 +194,44 @@ public:
                         designed_exams [(number_of_exams - 1)].make_test();
                     }
                     full_exam_array = true;
+                    break;
+                }
+                case 3:
+                {
+                    if(first_list)
+                    {
+                        cout<<"how many students do you want to add?";
+                        cin>>number_of_students;
+                        main_list = new student [number_of_students];
+                        for(int i = 0; i < number_of_students; ++i)
+                        {
+                            main_list[i].set();
+                        }
+                    }
+                    else
+                    {
+                        helper_list = new student [number_of_students];
+                        for(int i = 0; i < number_of_students; ++i)
+                        {
+                            helper_list [i] = main_list[i];
+                        }
+                        delete [] main_list;
+                        main_list = nullptr;
+                        cout<<"how many students do you want to add? ";
+                        cin>>number_of_added_student;
+                        number_of_students += number_of_added_student;
+                        main_list = new student [number_of_students];
+                        for(int i = 0; i < (number_of_students - number_of_added_student); ++i)
+                        {
+                            main_list[i] = helper_list [i];
+                            keeper = i;
+                        }
+                        for(int i = (keeper + 1); i < number_of_students; ++i)
+                        {
+                            main_list[i].set();
+                        }
+                    }
+                    first_list = false;
                     break;
                 }
                 case 4:
