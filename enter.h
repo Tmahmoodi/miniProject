@@ -6,8 +6,7 @@ string *username1, *password1, *username2, *password2, *given_username, *given_p
 int members = 0;
 int make_an_account(int log_in)
 {
-    bool check_username = false;
-    bool check = false;
+    bool check_username = false , check = false;
     int keeper;
     switch(log_in)
     {

@@ -6,7 +6,8 @@ class exam
 {
 private:
     string *question, *type_of_questions, *options_keeper, *helper_with_options, *write_answers, *helper_of_write_answers;
-    int number_of_questions, number_of_options = 0, size_of_write_answers = 0;
+    string show_options [4] = {"a)","b)","c)","d)"};
+    int number_of_questions, number_of_options = 0,test_options_in_output = 4 , size_of_write_answers = 0;
     bool options = false;
 public:
     void make_test()
@@ -88,12 +89,36 @@ public:
             }
         }
     }
+    void show_exams()
+    {
+        int j = 0;
+        for(int i = 0; i < number_of_questions; ++i)
+        {
+            int y = 0;
+            cout<<"question number "<<(i+1)<<": ";
+            cout<<question[i]<<endl;
+            if(type_of_questions[i] == "t")
+            {
+                for(int k = j ; k < test_options_in_output; ++k)
+                {
+                    cout<<show_options[y]<<options_keeper[k]<<"  ";
+                    y+=1;
+                }
+                cout<<endl;
+                test_options_in_output += 4;
+                j+=4;
+            }
+            cout<<"-------------------------------------------------------"<<endl;
+        }
+        test_options_in_output = 4;
+    }
 };
 class professor
 {
 private:
     int professor_management, number_of_exams = 0;
     bool full_exam_array = false;
+    bool designed_exam = false;
     exam *designed_exams, *helper;
 public:
     void professor_panel()
@@ -106,6 +131,22 @@ public:
             cout<<"==================================================="<<endl;
             switch(professor_management)
             {
+                case 1:
+                {
+                    if(!designed_exam)
+                    {
+                        cout<<"you don't have any designed exam. please design one and then try again.\n";
+                    }
+                    else
+                    {
+                        for(int i = 0; i < number_of_exams; ++i)
+                        {
+                            cout<<"exam number "<<i+1<<": "<<endl;
+                            designed_exams[i].show_exams();
+                        }
+                    }
+                    break;
+                }
                 case 2:
                 {
                     exam new_one;
