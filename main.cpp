@@ -1,171 +1,175 @@
-#include <iostream>
-#include <string>
+#include<iostream>
+#include<string>
+#include<fstream>
 #include "professor.h"
-
+#include "student.h"
 using namespace std;
-
 class site
 {
 private:
-    int member_counter = 0 , log_in, members = 0;
-    bool check_first_one = true;
-    professor *list1, *helper_list;
-    string site_checker, *username1, *password1, *username2, *password2, *given_username, *given_password;
+    int log_in;
+    string user, username, password, given_username, given_password;
 public:
-    void list()
+    void panel()
     {
         do
         {
-            cout<<"do you want to close the site? (if you say yes, all the history will be deleted)\nenter yes or no:\n";
-            cin>>site_checker;
-            if(site_checker != "yes")
+            cout<<"======================================================================="<<endl;
+            cout <<"enter 1 for sign up.\nenter 2 for sign in.\nenter 3 to close the site:\n";
+            cin >> log_in;
+            cout<<"======================================================================="<<endl;
+            switch (log_in)
             {
-                cout << "enter 1 for sign up.\nenter 2 for sign in: \n";
-                cin >> log_in;
-                if (log_in == 1)
+                case 1:
                 {
-                    ++member_counter;
-                    professor ob;
-                    if (check_first_one)
+                    string check_user, check_pass;
+                    bool check = true;
+                    while(check)
                     {
-                        list1 = new professor[member_counter];
-                        list1[(member_counter-1)] = ob;
+                        check = false;
+                        cout<<"please enter your username: \n";
+                        getline(cin>>ws, username);
+                        fstream user_pass_professor;
+                        user_pass_professor.open("professor_user_pass.txt", fstream::in|ios::app|fstream::out);
+                        if(!user_pass_professor.is_open())
+                        {
+                            cout<<"there is a problem. please try again a few minutes later.\n";
+                            check = false;
+                        }
+                        else
+                        {
+                            while(!user_pass_professor.eof())
+                            {
+                                getline(user_pass_professor, check_user, '\n');
+                                getline(user_pass_professor, check_pass, '\n');
+                                if(check_user == username)
+                                {
+                                    cout<<"your username is already chosen by others. please try again.\n";
+                                    check = true;
+                                    break;
+                                }
+                            }
+                            user_pass_professor.close();
+                        }
+                    }
+                    fstream user_pass_professor("professor_user_pass.txt", ios::out|ios::app);
+                    if(!user_pass_professor)
+                    {
+                        cout<<"there is a problem. please make a try a few minutes later.\n";
                     }
                     else
                     {
-                        helper_list = new professor[member_counter];
-                        for (int i = 0; i < (member_counter - 1); ++i)
-                        {
-                            helper_list[i] = list1[i];
-                        }
-                        helper_list[(member_counter - 1)] = ob;
-                        delete[] list1;
-                        list1 = nullptr;
-                        list1 = new professor[member_counter];
-                        for (int i = 0; i < member_counter; ++i)
-                        {
-                            list1[i] = helper_list[i];
-                        }
-                        delete[] helper_list;
-                        helper_list = nullptr;
+                        cout<<"please enter your password: \n";
+                        getline(cin>>ws, password);
+                        user_pass_professor<<username<<"\n"<<password<<endl;
+                        cout<<"welcome "<<username<<":) "<<endl;
+                        professor ob;
+                        ob.professor_panel(username);
                     }
-                    check_first_one = false;
-                }
-                int keeper = make_an_account(log_in);
-                list1[keeper].professor_panel();
-            }
-        }while(site_checker == "no");
-    }
-    int check_account()
-    {
-        bool check = false;
-        int keeper = -1;
-        given_username = new string [1];
-        given_password = new string [1];
-        cout<<"please enter your username: \n";
-        getline (cin>>ws, given_username[0]);
-        cout<<"please enter your password: \n";
-        getline (cin>>ws, given_password[0]);
-        for (int i = 0; i < members; i++)
-        {
-            if(given_username[0] == username1[i])
-            {
-                if(given_password[0] == password1[i])
-                {
-                    cout<<"welcome "<<given_username[0]<<" :)"<<endl;
-                    check = true;
-                    keeper = i;
-                    delete [] given_username;
-                    delete [] given_password;
-                    given_username = nullptr;
-                    given_password = nullptr;
                     break;
                 }
-            }
-        }
-        if(!check)
-        {
-            cout<<"your username or password is incorrect. please try again.\n";
-        }
-        return keeper;
-    }
-    int make_an_account(int log_in)
-    {
-        bool check_username = false;
-        switch(log_in)
-        {
-            case 1:
-            {
-                members += 1;
-                if (members == 1)
+                case 2:
                 {
-                    username1 = new string[(members+1)];
-                    password1 = new string[(members+1)];
-                    cout << "please enter your username: \n";
-                    getline(cin >> ws, username1[0]);
-                    cout << "please enter your password: \n";
-                    getline(cin >> ws, password1[0]);
-                }
-                else
-                {
-                    username2 = new string[(members+1)];
-                    password2 = new string[(members+1)];
-                    for (int i = 0; i < (members - 1); ++i)
+                    string saved_user, saved_password;
+                    bool find = false;
+                    cout<<"please enter 'p' if you are professor and enter 's' if you are student:\n";
+                    cin>>user;
+                    if(user == "p")
                     {
-                        username2[i] = username1[i];
-                        password2[i] = password1[i];
-                    }
-                    cout << "please enter your username: \n";
-                    while (!check_username)
-                    {
-                        check_username = true;
-                        getline(cin >> ws, username2[(members - 1)]);
-                        for (int i = 0; i < (members - 1); ++i)
+                        while (!find)
                         {
-                            if (username1[i] == username2[(members - 1)])
+                            fstream user_pass_professor;
+                            user_pass_professor.open("professor_user_pass.txt", fstream::in|fstream::out);
+                            if(!user_pass_professor.is_open())
                             {
-                                cout << "user name was chosen by others, please try an other username: \n";
-                                check_username = false;
+                                cout<<"there is a problem. please try again a few minutes later.\n";
+                                find = true;
+                            }
+                            else
+                            {
+                                cout<<"please enter your username: \n";
+                                getline(cin>>ws, given_username);
+                                cout<<"please enter your password: \n";
+                                getline(cin>>ws, given_password);
+                                while (!user_pass_professor.eof())
+                                {
+                                    getline(user_pass_professor, saved_user);
+                                    getline(user_pass_professor, saved_password);
+                                    if(saved_user == given_username)
+                                    {
+                                        if(saved_password == given_password)
+                                        {
+                                            cout<<"welcome "<<given_username<<":) "<<endl;
+                                            find = true;
+                                            professor ob;
+                                            ob.professor_panel(given_username);
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(!find)
+                                {
+                                    cout<<"your username or password is incorrect. please try again.\n";
+                                }
+                                user_pass_professor.close();
                             }
                         }
                     }
-                    cout << "please enter your password: \n";
-                    getline(cin >> ws, password2[(members - 1)]);
-                    delete[] username1;
-                    delete[] password1;
-                    username1 = nullptr;
-                    password1 = nullptr;
-                    username1 = new string[(members+1)];
-                    password1 = new string[(members+1)];
-                    for (int i = 0; i < members; ++i)
+                    else if(user == "s")
                     {
-                        username1[i] = username2[i];
-                        password1[i] = password2[i];
+                        while(!find)
+                        {
+                            fstream students;
+                            students.open("student_user_pass.txt", fstream::in|fstream::out);
+                            if(students.is_open())
+                            {
+                                cout<<"please enter your username: \n";
+                                getline(cin>>ws, given_username);
+                                cout<<"please enter your password: \n";
+                                getline(cin>>ws, given_password);
+                                while (!students.eof())
+                                {
+                                    getline(students, saved_user);
+                                    if(saved_user == ("student's username: " + given_username))
+                                    {
+                                        getline(students, saved_password);
+                                        if(saved_password == ("password: " + given_password))
+                                        {
+                                            cout<<"welcome "<<given_username<<":)\n";
+                                            find = true;
+                                            student ob;
+                                            ob.student_panel();
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(!find)
+                                {
+                                    cout<<"your username or password is incorrect. please try again.\n";
+                                }
+                                students.close();
+                            }
+                            else
+                            {
+                                cout<<"there is a problem. please try again a few minutes later.\n";
+                                find = true;
+                            }
+                        }
                     }
-                    delete[] username2;
-                    delete[] password2;
-                    username2 = nullptr;
-                    password2 = nullptr;
+                    break;
                 }
-                return (members-1);
-                break;
-            }
-            case 2:
-            {
-                int saver = check_account();
-                while(saver == -1)
+                case 3:
                 {
-                    saver = check_account();
+                    cout<<"thanks for choosing our site :)\n";
+                    break;
                 }
-                return saver;
-                break;
             }
-        }
+        }while(log_in != 3);
     }
 };
 int main()
 {
     site start;
-    start.list();
+    start.panel();
     return 0;
 }

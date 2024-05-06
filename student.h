@@ -1,25 +1,34 @@
 #ifndef MINIPROJECT_STUDENT_H
 #define MINIPROJECT_STUDENT_H
 #include<string>
-#include<iomanip>
 using namespace std;
 class student
 {
 private:
-    string StudentUsername;
-    string StudentPassword;
+    int student_management;
 public:
-    void set()
+    void student_panel()
     {
-        cout<<"please enter username of your student: \n";
-        getline(cin>>ws, StudentUsername);
-        cout<<"please enter password of your student: \n";
-        getline(cin>>ws, StudentPassword);
-    }
-    void show(int number_student)
-    {
-        cout<<"student number: "<<number_student<<setw(15)<<"username: "<<StudentUsername<<"\n"<<setw(32)<<"password: "<<StudentPassword<<endl;
-        ++number_student;
+        cout<<"======================================================================="<<endl;
+        cout<<"enter 1 to do your exam.\nenter 2 to see your grade.\nenter 3 to exit.\n";
+        cin>>student_management;
+        cout<<"======================================================================="<<endl;
+        switch (student_management)
+        {
+            case 1:
+            {
+                break;
+            }
+            case 2:
+            {
+                break;
+            }
+            case 3:
+            {
+                cout<<"have a great day :)"<<endl;
+                break;
+            }
+        }
     }
 };
 #endif //MINIPROJECT_STUDENT_H
