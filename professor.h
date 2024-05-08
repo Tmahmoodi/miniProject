@@ -70,9 +70,8 @@ public:
 class List
 {
 private:
-    string list_name, user_st, pass_st, compare,professor_user, saved_list_name, line, searched_line;
+    string list_name, user_st, pass_st, compare,professor_user, saved_list_name, line, searched_line, saved_st;
     int num_st;
-    bool check_name_list = true;
     stringstream saver_file;
 public:
     void make_list(string given_professor_user)
@@ -81,100 +80,76 @@ public:
         students.open("student_user_pass.txt", fstream::out|ios::app|fstream::in);
         if(students.is_open())
         {
-            cout<<"the name of your list is better to have your lesson's name + your school or university's name + your name + year\n";
-            do
+            cout<<"what is your list name?\n";
+            getline(cin>>ws, list_name);
+            students<<"professor's name: "<<given_professor_user<<endl<<"list's name: "<<list_name<<endl;
+            cout<<"how many students do you want to add?\n";
+            cin>>num_st;
+            for (int i = 0; i < num_st; ++i)
             {
-                check_name_list = false;
-                cout<<"what is your list name?\n";
-                getline(cin>>ws, list_name);
-                while(!students.eof())
-                {
-                    getline(students, compare);
-                    if(compare == "list's name: " + list_name)
-                    {
-                        check_name_list = true;
-                        cout<<"your name list was chosen already. please choose another name.\n";
-                        break;
-                    }
-                }
-                students.close();
-            } while(check_name_list);
-            students.open("student_user_pass.txt", fstream::out|ios::app);
-            if(students.is_open())
-            {
-                students<<"professor's name: "<<given_professor_user<<endl<<"list's name: "<<list_name<<endl;
-                cout<<"how many students do you want to add?\n";
-                cin>>num_st;
-                for (int i = 0; i < num_st; ++i)
-                {
-                    cout<<"student's username: "<<"\n";
-                    getline(cin>>ws, user_st);
-                    cout<<"password: "<<"\n";
-                    getline(cin>>ws, pass_st);
-                    students<<"student's username: "<<user_st<<endl<<"password: "<<pass_st<<endl;
-                }
-                students<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                students.close();
+                cout<<"student's username: "<<"\n";
+                getline(cin>>ws, user_st);
+                cout<<"password: "<<"\n";
+                getline(cin>>ws, pass_st);
+                students<<"student's username: "<<user_st<<endl<<"password: "<<pass_st<<endl;
             }
-            else
-            {
-                cout<<"there is a problem. please try again a few minutes later.\n";
-            }
+            students<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+            students.close();
         }
         else
         {
             cout<<"there is a problem. please try again a few minutes later.\n";
         }
     }
-    void add_to_list()
+    void add_to_list(string given_professor_user)
     {
-        cout<<"which list do you want to add your new student(s) to?\n";
-        getline(cin>>ws, list_name);
+        cout << "which list do you want to add your new student(s) to?\n";
+        getline(cin >> ws, list_name);
         fstream students;
-        students.open("student_user_pass.txt", fstream::in|fstream::out);
-        if(!students.is_open())
+        students.open("student_user_pass.txt", fstream::in | fstream::out);
+        if (!students.is_open())
         {
-            cout<<"there is a problem. please try again a few minutes later.\n";
+            cout << "there is a problem. please try again a few minutes later.\n";
         }
         else
         {
-            while(getline(students, line))
+            while (getline(students, line))
             {
-                saver_file<<line<<endl;
+                saver_file << line << endl;
             }
             students.close();
-            searched_line = "list's name: " + list_name;
+            searched_line = "professor's name: " + given_professor_user + "\n" + "list's name: " + list_name;
             searched_line.append("\n");
             size_t location = saver_file.str().find(searched_line);
-            if(location == string::npos)
+            if (location == string::npos)
             {
-                cout<<"can't find your list.\n";
+                cout << "can't find your list.\n";
             }
             else
             {
                 string keeper = saver_file.str().substr(0, location);
-                cout<<"how many students do you want to add?\n";
-                cin>>num_st;
-                keeper.append("list's name: "+ list_name +"\n");
+                cout << "how many students do you want to add?\n";
+                cin >> num_st;
+                keeper.append("professor's name: " + given_professor_user + "\n" + "list's name: " + list_name + "\n");
                 for (int i = 0; i < num_st; ++i)
                 {
-                    cout<<"student's username: "<<"\n";
-                    getline(cin>>ws, user_st);
-                    cout<<"password: "<<"\n";
-                    getline(cin>>ws, pass_st);
+                    cout << "student's username: " << "\n";
+                    getline(cin >> ws, user_st);
+                    cout << "password: " << "\n";
+                    getline(cin >> ws, pass_st);
                     keeper.append("student's username: " + user_st + '\n');
                     keeper.append("password: " + pass_st + '\n');
                 }
                 keeper.append(saver_file.str().substr(location + searched_line.length()));
                 students.open("student_user_pass.txt", fstream::out);
-                if(!students.is_open())
+                if (!students.is_open())
                 {
-                    cout<<"there is a problem. please try again a few minutes later.\n";
+                    cout << "there is a problem. please try again a few minutes later.\n";
                 }
                 else
                 {
-                    students<<keeper;
-                    cout<<"new students added successfully.\n";
+                    students << keeper;
+                    cout << "new students added successfully.\n";
                     students.close();
                 }
             }
@@ -267,6 +242,10 @@ public:
                                             getline(students, pass_st);
                                             cout<<user_st<<endl<<pass_st<<endl;
                                         }
+                                        else
+                                        {
+                                            cout<<user_st<<endl;
+                                        }
                                     }while((user_st != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") && (pass_st != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"));
                                 }
                             }
@@ -285,7 +264,7 @@ public:
                     else if(num_list == 3)
                     {
                         List ob;
-                        ob.add_to_list();
+                        ob.add_to_list(given_professor_user);
                     }
                     break;
                 }
