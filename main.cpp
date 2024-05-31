@@ -138,7 +138,7 @@ public:
                                             cout<<"welcome "<<given_username<<":)\n";
                                             find = true;
                                             student ob;
-                                            ob.student_panel();
+                                            ob.student_panel(given_username);
                                             break;
                                         }
                                     }

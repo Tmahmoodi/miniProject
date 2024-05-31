@@ -1,6 +1,7 @@
 #ifndef MINI_PROJECT_PROFESSOR_H
 #define MINI_PROJECT_PROFESSOR_H
 #include <string>
+#include<fstream>
 #include<sstream>
 using namespace std;
 class exam
@@ -13,64 +14,95 @@ private:
 public:
     void make_test(string given_professor_user)
     {
-        fstream exams("exams.txt", fstream::out|ios::app);
-        if(!exams)
+        bool check = false;
+        string line;
+        ifstream name_exam;
+        name_exam.open("exam's name.txt", fstream::in);
+        if(!name_exam.is_open())
         {
             cout<<"there is a problem. please try again a few minutes later.";
         }
         else
         {
-            exams<<"professor's name: "<<given_professor_user<<endl;
-            cout<<"what is your exam name?\n";
-            getline(cin>>ws, name_of_exam);
-            exams<<"exam's name: "<<name_of_exam<<endl;
-            cout<<"how many questions do you want to make?\n";
-            cin>>num_questions;
-            cout<<"whenever we ask about the type of your question, write 't' to design test question or write 'd' to make descriptive question.\n";
-            for (int i = 0; i < num_questions; ++i)
+            do
             {
-                cout<<"type of your question: \n";
-                cin>>type_question;
-                exams<<"type of question: "<<type_question<<endl;
-                cout<<"question number "<<i+1<<": "<<endl;
-                getline(cin>>ws, question);
-                exams<<"question number "<<i+1<<": "<<question<<endl;
-                if(type_question == "t")
+                cout<<"what is your exam name?\n(your exam name is better to have a complete info like your school or university's name and the year.)\n";
+                getline(cin>>ws, name_of_exam);
+                check = true;
+                while(!name_exam.eof())
                 {
-                    cout<<"a) ";
-                    getline(cin>>ws, option);
-                    exams<<"a) "<<option<<endl;
-                    cout<<"b) ";
-                    getline(cin>>ws, option);
-                    exams<<"b) "<<option<<endl;
-                    cout<<"c) ";
-                    getline(cin>>ws, option);
-                    exams<<"c) "<<option<<endl;
-                    cout<<"d) ";
-                    getline(cin>>ws, option);
-                    exams<<"d) "<<option<<endl;
-                    cout<<"please choose the correct answer:\n";
-                    cin>>option;
-                    exams<<"correct answer: "<<option<<endl;
+                    getline(name_exam,line);
+                    if(line == "exam's name: " + name_of_exam)
+                    {
+                        check = false;
+                        cout<<"the name of your exam was chosen. please try another one.\n";
+                        break;
+                    }
                 }
-                cout<<"grade of this question:\n";
-                cin>>grade_question;
-                exams<<"grade this question: "<<grade_question<<endl;
-                exams<<"---------------------------------------------------------------------"<<endl;
-                cout<<"time of your question (based on minutes):\n";
-                cin>>time_question;
-                time_exam += time_question;
+            }while(!check);
+            name_exam.close();
+            ofstream add("exam's name.txt", fstream::out|ios::app);
+            if(!add)
+                cout<<"there is a problem. please try again a few minutes later.";
+            else
+                add<<"exam's name: "<<name_of_exam<<endl;
+            fstream exams("exams.txt", fstream::out|ios::app);
+            if(check && exams)
+            {
+                exams<<"professor's name: "<<given_professor_user<<endl;
+                exams<<"exam's name: "<<name_of_exam<<endl;
+                cout<<"how many questions do you want to make?\n";
+                cin>>num_questions;
+                cout<<"whenever we ask about the type of your question, write 't' to design test question or write 'd' to make descriptive question.\n";
+                for (int i = 0; i < num_questions; ++i)
+                {
+                    cout<<"type of your question: \n";
+                    cin>>type_question;
+                    exams<<"type of question: "<<type_question<<endl;
+                    cout<<"question number "<<i+1<<": "<<endl;
+                    getline(cin>>ws, question);
+                    exams<<"question number "<<i+1<<": "<<question<<endl;
+                    if(type_question == "t")
+                    {
+                        cout<<"a) ";
+                        getline(cin>>ws, option);
+                        exams<<"a) "<<option<<endl;
+                        cout<<"b) ";
+                        getline(cin>>ws, option);
+                        exams<<"b) "<<option<<endl;
+                        cout<<"c) ";
+                        getline(cin>>ws, option);
+                        exams<<"c) "<<option<<endl;
+                        cout<<"d) ";
+                        getline(cin>>ws, option);
+                        exams<<"d) "<<option<<endl;
+                        cout<<"please choose the correct answer:\n";
+                        cin>>option;
+                        exams<<"correct answer: "<<option<<endl;
+                    }
+                    cout<<"grade of this question:\n";
+                    cin>>grade_question;
+                    exams<<"grade this question: "<<grade_question<<endl;
+                    exams<<"---------------------------------------------------------------------"<<endl;
+                    cout<<"time of your question (based on minutes):\n";
+                    cin>>time_question;
+                    time_exam += time_question;
+                }
+                exams<<"time of exam: "<<endl<<time_exam<<endl;
+                exams<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
             }
+            else
+            {
+                cout<<"there is a problem. please try again a few minutes later.";
+            }
+            exams.close();
         }
-        exams<<"time of exam: "<<time_exam<<endl;
-        exams<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-        exams.close();
     }
 };
 class List
 {
 private:
-    string list_name, user_st, pass_st, compare,professor_user, saved_list_name, line, searched_line, saved_st;
+    string list_name, user_st, pass_st, compare,professor_user, saved_list_name, line, searched_line;
     int num_st;
     stringstream saver_file;
 public:
@@ -163,12 +195,13 @@ private:
     string show;
     bool find = false;
 public:
+    void share_exam(string given_professor_user);
     void professor_panel(string given_professor_user)
     {
         do
         {
             cout<<"======================================================================="<<endl;
-            cout<<"panel:\nenter 1 to see your designed exams.\nenter 2 to make a new exam.\nenter 3 to manage your list.\nenter 4 to exit: \n";
+            cout<<"panel:\nenter 1 to see your designed exams.\nenter 2 to make a new exam.\nenter 3 to manage your list.\nenter 4 to share a specific exam with a list of your students.\nenter 5 to exit: \n";
             cin>>professor_management;
             cout<<"======================================================================="<<endl;
             switch(professor_management)
@@ -270,11 +303,167 @@ public:
                 }
                 case 4:
                 {
+                    share_exam(given_professor_user);
+                    break;
+                }
+                case 5:
+                {
                     cout<<"have a great day :)"<<endl;
                     break;
                 }
             }
-        }while(professor_management != 4);
+        }while(professor_management != 5);
     }
 };
+void professor::share_exam(string given_professor_user)
+{
+    string name_of_exam, name_of_list, line1, line2;
+    stringstream saver_exam, saver_list;
+    bool find_exam = false, find_list = false, check = false;
+    cout<<"please enter the exam name witch you want to share:\n";
+    getline(cin>>ws, name_of_exam);
+    cout<<"please enter the name of your list witch you want to share the exam with:\n";
+    getline(cin>>ws, name_of_list);
+    fstream students;
+    students.open("student_user_pass.txt", fstream::in);
+    if(students.is_open())
+    {
+        while(!students.eof())
+        {
+            getline(students, line1);
+            getline(students, line2);
+            if((line1 == ("professor's name: " + given_professor_user)) && (line2 == ("list's name: " + name_of_list)))
+            {
+                while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                {
+                    getline(students, line1);
+                    getline(students, line2);
+                    if(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        saver_list<<line1<<endl;
+                    else
+                        break;
+                }
+                find_list = true;
+                break;
+            }
+            else
+            {
+                while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                {
+                    if (!students.eof())
+                        getline(students, line1);
+                    else
+                        break;
+                }
+            }
+        }
+        if(!find_list)
+        {
+            cout<<"we can't find your chosen list.\n";
+        }
+    }
+    else
+    {
+        cout<<"there is a problem. please try again a few minutes later.\n";
+    }
+    students.close();
+    fstream exams;
+    exams.open("exams.txt", fstream::in|fstream::out|ios::app);
+    if(exams.is_open())
+    {
+        if(find_list)
+        {
+            while(!exams.eof())
+            {
+                getline(exams, line1);
+                getline(exams, line2);
+                if(line1 == ("professor's name: " + given_professor_user) && line2 == ("exam's name: " + name_of_exam))
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                    {
+                        getline(exams, line1);
+                        if(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                            saver_exam<<line1<<endl;
+                        else
+                            saver_exam<<line1;
+                    }
+                    find_exam = true;
+                    break;
+                }
+                else
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                    {
+                        if(!exams.eof())
+                            getline(exams, line1);
+                        else
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        cout<<"there is a problem. please try again a few minutes later.\n";
+    }
+    exams.close();
+    if(find_exam)
+    {
+        fstream shared_exam("shared_exams.txt", fstream::out|ios::app|fstream::in);
+        if(shared_exam)
+        {
+            while(!saver_list.eof())
+            {
+                shared_exam.seekg(0, ios::beg);
+                getline(saver_list, line1);
+                if(line1 != "")
+                {
+                    while(getline(shared_exam, line2))
+                    {
+                        if(line2 == line1)
+                        {
+                            getline(shared_exam, line2);
+                            if(line2 == "professor's name: " + given_professor_user)
+                            {
+                                getline(shared_exam, line2);
+                                if(line2 == "exam's name: " + name_of_exam)
+                                {
+                                    check = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if(check)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        shared_exam.clear();
+                        shared_exam.seekp(ios::end);
+                        shared_exam<<"show exam is: open\n"<<line1<<endl<<"professor's name: "<<given_professor_user<<endl<<"exam's name: "<<name_of_exam<<endl<<"situation: not answered.\n";
+                        while(!saver_exam.eof())
+                        {
+                            getline(saver_exam, line1);
+                            shared_exam<<line1<<endl;
+                        }
+                        saver_exam.clear();
+                        saver_exam.seekg(0, std::ios::beg);
+                    }
+                }
+            }
+            cout<<"shared successfully completed.\n";
+        }
+        else
+        {
+            cout<<"there is a problem. please try again a few minutes later.\n";
+        }
+    }
+    else
+    {
+        cout<<"sorry we can't find your chosen exam.\n";
+    }
+}
 #endif
