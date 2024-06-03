@@ -329,6 +329,7 @@ private:
 protected:
     void share_exam(const string &given_professor_user);
     void check_exams(const string &given_professor_user);
+    void answer_protests();
     void ranking();
     void limitation(const string &given_professor_user);
 public:
@@ -341,9 +342,9 @@ void professor::professor_panel(const string &given_professor_user)
         cout<<"======================================================================="<<endl;
         cout<<"panel:\nenter 1 to see your designed exams.\nenter 2 to make a new exam.\n"
               "enter 3 to manage your list.\nenter 4 to share a specific exam with a list of your students.\n"
-              "enter 5 to check the answered exams of your students.\n"
-              "enter 6 to see your students' performances in an exam.\n"
-              "enter 7 to close the site for doing a specific exam for your students or closing an exam on history.\nenter 8 to exit:\n";
+              "enter 5 to check the answered exams of your students.\nenter 6 to see your student's protest.\n"
+              "enter 7 to see your students' performances in an exam.\n"
+              "enter 8 to close the site for doing a specific exam for your students or closing an exam on history.\nenter 9 to exit:\n";
         cin>>professor_management;
         cout<<"======================================================================="<<endl;
         switch(professor_management)
@@ -398,21 +399,26 @@ void professor::professor_panel(const string &given_professor_user)
             }
             case 6:
             {
-                ranking();
+                answer_protests();
                 break;
             }
             case 7:
             {
-                limitation(given_professor_user);
+                ranking();
                 break;
             }
             case 8:
+            {
+                limitation(given_professor_user);
+                break;
+            }
+            case 9:
             {
                 cout<<"have a great day :)"<<endl;
                 break;
             }
         }
-    }while(professor_management != 8);
+    }while(professor_management != 9);
 }
 void professor::share_exam(const string &given_professor_user)
 {
@@ -884,6 +890,101 @@ void professor::check_exams(const string &given_professor_user)
         cout<<"you don't have any unchecked exam.\n";
     }
 }
+void professor::answer_protests()
+{
+    string name_of_exam, line1, line2, protest_answer, student_name, add = "answered: yes";
+    bool find_protest = false, change = false;
+    int option = 1;
+    stringstream exam_pro, saver_answers, keeper;
+    cout<<"please enter the exam name witch you want to see student's protests on:\n";
+    getline(cin>>ws, name_of_exam);
+    fstream exam_protest("protest.txt",fstream::in|fstream::out);
+    if (exam_protest)
+    {
+        while(getline(exam_protest, line1))
+        {
+            exam_pro<<line1<<endl;
+        }
+        exam_protest.clear();
+        exam_protest.seekp(0, ios::beg);
+        while (!exam_pro.eof())
+        {
+            change = false;
+            getline(exam_pro, line1);
+            if(!line1.empty() && option == 1)
+            {
+                if(line1 == "exam's name: " + name_of_exam)
+                {
+                    getline(exam_pro, line2);
+                    if(line2 == "answered: no")
+                    {
+                        change = true;
+                        find_protest = true;
+                        exam_pro.seekg(-(long)(line2.length() + 1), ios::cur);
+                        keeper<<exam_pro.str().substr(0, exam_pro.tellg())<<add<<endl;
+                        getline(exam_pro, line2);
+                        keeper<<exam_pro.str().substr(exam_pro.tellg());
+                        getline(exam_pro, line2);
+                        cout<<line2<<endl;
+                        getline(exam_pro, line2);
+                        student_name = line2;
+                        cout<<line2<<endl;
+                        getline(exam_pro, line2);
+                        cout<<line2<<endl;
+                        getline(exam_pro, line2);
+                        cout<<line2<<endl;
+                        getline(exam_pro, line2);
+                        cout<<"please enter answer to "<<student_name<<" protest: \n";
+                        getline(cin>>ws, protest_answer);
+                        saver_answers<<line1<<endl<<"answer of "<<student_name<<": "<<endl<<"professor's answer: "<<protest_answer<<endl<<line2<<endl;
+                    }
+                    else
+                    {
+                        while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                            getline(exam_pro, line1);
+                    }
+                    if(change)
+                    {
+                        exam_pro.str("");
+                        exam_pro<<keeper.str();
+                        exam_protest.seekp(0, ios::beg);
+                        exam_protest.write(keeper.str().c_str(), (long)keeper.str().length());
+                        keeper.str("");
+                        cout<<"do you want to check another protest?\n1)yes 2)no";
+                        cin>>option;
+                    }
+                }
+                else
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        getline(exam_pro, line1);
+                }
+            }
+            else
+                break;
+        }
+        if(!find_protest)
+            cout<<"there isn't any protest for your chosen exam.\n";
+        else
+        {
+            ofstream pro_answer("protest_answer.txt" , fstream::out|ios::app);
+            if(pro_answer)
+            {
+                pro_answer<<saver_answers.str();
+            }
+            else
+            {
+                cerr<<"there is a problem. please try again a few minutes later.\n";
+                return;
+            }
+        }
+    }
+    else
+    {
+        cerr<<"there is a problem. please try again a few minutes later.\n";
+        return;
+    }
+}
 void professor::ranking()
 {
     string exam_name, line1;
@@ -920,7 +1021,7 @@ void professor::ranking()
                 grades[i] = stof(line1.substr(7));
             }
             size_t location = line1.find('/');
-            exam_grade = stof(line1.substr(location + 1));
+            exam_grade = stof(line1.substr(location+1));
             for (int i = 1; i < counter; ++i)
             {
                 for (int j = 0; j < i; ++j)

@@ -15,6 +15,8 @@ protected:
     void do_exam(const string &given_username);
     void show_exams(const string &given_username);
     void show_grades(const string &given_username);
+    void protest_exam(const string &given_username);
+    void protest_result(const string &given_username);
 public:
     void student_panel(const string &given_username);
 };
@@ -42,10 +44,12 @@ void student::student_panel(const string &given_username)
             }
             case 3:
             {
+                protest_exam(given_username);
                 break;
             }
             case 4:
             {
+                protest_result(given_username);
                 break;
             }
             case 5:
@@ -449,6 +453,166 @@ void student::show_exams(const string &given_username)
     {
         cerr<<"there is a problem, please try again later.\n";
         return;
+    }
+}
+void student::protest_exam(const string &given_username)
+{
+    string exam_name, line1, protest_detail;
+    bool find_student = false, find_exam = false, find_protest = false;
+    cout<<"your exam's name witch you want to protest on:\n";
+    getline(cin>>ws ,exam_name);
+    fstream examine;
+    examine.open("protest.txt", fstream::in|fstream::out|ios::app);
+    if(examine.is_open())
+    {
+        while(!examine.eof())
+        {
+            getline(examine, line1);
+            if(!line1.empty())
+            {
+                if(line1 == "exam's name: " + exam_name)
+                {
+                    getline(examine, line1);
+                    getline(examine, line1);
+                    getline(examine, line1);
+                    if(line1 == given_username)
+                    {
+                        find_protest = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        getline(examine, line1);
+                }
+            }
+            else
+                break;
+        }
+        examine.close();
+    }
+    else
+    {
+        cerr<<"there is a problem, please try again later.\n";
+        return;
+    }
+    if(find_protest)
+    {
+        cout<<"you have already protested in this exam and you can't do it again.\n";
+    }
+    else
+    {
+        ifstream protest;
+        protest.open("grades.txt",ios::in);
+        if(protest.is_open())
+        {
+            while (getline(protest, line1))
+            {
+                if(line1 == "exam's name: " + exam_name)
+                {
+                    getline(protest, line1);
+                    if(line1 == "student's username: " + given_username)
+                    {
+                        getline(protest, line1);
+                        cout<<"your garde of "<<exam_name<<" exam is: "<<line1.substr(7)<<endl;
+                        find_student = true;
+                        break;
+                    }
+                    find_exam = true;
+                }
+
+            }
+            protest.close();
+        }
+        else
+        {
+            cerr<<"there is a problem. please try again a few minutes later.\n";
+            return;
+        }
+        if (!find_exam)
+        {
+            cout<<"sorry we can't find your exam in checked exams list.\n";
+        }
+        if (find_student)
+        {
+            fstream protest_exam;
+            protest_exam.open("protest.txt", fstream::out|ios::app|fstream::in);
+            if(protest_exam.is_open())
+            {
+                std::chrono::system_clock::time_point protest_time;
+                protest_time = std::chrono::system_clock::now();
+                std::time_t timestamp = std::chrono::system_clock::to_time_t(protest_time);
+                std::tm* time_info = std::localtime(&timestamp);
+                char buffer[80];
+                std::strftime(buffer,80,"%Y-%m-%d %H:%M:%S" , time_info);
+                cout<<"please enter your protest:\n";
+                getline(cin>>ws, protest_detail);
+                protest_exam<<"exam's name: "<<exam_name<<endl<<"answered: no\nstudent's username: \n"<<given_username<<endl<<"protest detail: "<<protest_detail<<endl;
+                protest_exam<<"time protest: "<<buffer<<endl;
+                protest_exam<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+                cout<<"protest saved successfully.\n";
+            }
+            else
+            {
+                cerr<<"there is a problem. please make a try a few minutes later.\n";
+                return;
+            }
+            protest_exam.close();
+        }
+        else
+        {
+            cout<<"sorry we can't find your name in grades list.\n";
+        }
+    }
+}
+void student::protest_result(const string &given_username)
+{
+    string exam_name, line1, line2, line3;
+    bool check_answer = false;
+    cout<<"your exam's name witch you want to see result of protest:\n";
+    getline(cin>>ws ,exam_name);
+    fstream pro_result;
+    pro_result.open("protest_answer.txt",fstream::in|fstream::out|ios::app);
+    if (pro_result.is_open())
+    {
+        while (!pro_result.eof())
+        {
+            getline(pro_result,line1);
+            if (!line1.empty())
+            {
+                if(line1 == "exam's name: " + exam_name)
+                {
+                    getline(pro_result,line2);
+                    if(line2 == "answer of " + given_username + ": ")
+                    {
+                        getline(pro_result,line2);
+                        cout<<line2<<endl;
+                        getline(pro_result,line2);
+                        check_answer = true;
+                    }
+                    else
+                    {
+                        while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                            getline(pro_result,line1);
+                    }
+                }
+                else
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        getline(pro_result,line1);
+                }
+            }
+        }
+    }
+    else
+    {
+        cerr<<"there is a problem. please try again a few minutes later.\n";
+        return;
+    }
+    if(!check_answer)
+    {
+        cout<<"no result found.\n";
     }
 }
 #endif //MINIPROJECT_STUDENT_H
