@@ -9,51 +9,62 @@ class student
 {
 private:
     int student_management;
-    string line , searched_line, answer;
-    stringstream saver_file;
+    string answer;
     double time;
+protected:
+    void do_exam(const string &given_username);
+    void show_exams(const string &given_username);
+    void show_grades(const string &given_username);
 public:
-    void do_exam(string given_username);
-    void student_panel(string given_username)
-    {
-        do
-        {
-            cout<<"======================================================================="<<endl;
-            cout<<"enter 1 to do your active exams.\nenter 2 to see your grades.\nenter 3 to protest your score.\nenter 4 to see the result of your protests.\nenter 5 to exit.\n";
-            cin>>student_management;
-            cout<<"======================================================================="<<endl;
-            switch (student_management)
-            {
-                case 1:
-                {
-                    do_exam(given_username);
-                    break;
-                }
-                case 2:
-                {
-                    break;
-                }
-                case 3:
-                {
-                    break;
-                }
-                case 4:
-                {
-                    break;
-                }
-                case 5:
-                {
-                    cout<<"have a great day :)"<<endl;
-                    break;
-                }
-            }
-        }while(student_management != 5);
-    }
+    void student_panel(const string &given_username);
 };
-void student::do_exam(string given_username)
+void student::student_panel(const string &given_username)
 {
-    string line1, line2, exam_name;
-    stringstream keeper;
+    do
+    {
+        cout<<"======================================================================="<<endl;
+        cout<<"enter 1 to do your active exams.\nenter 2 to see your grades.\n"
+              "enter 3 to protest your score.\nenter 4 to see the result of your protests.\n"
+              "enter 5 to see the exam which you have done.\nenter 6 to exit.\n";
+        cin>>student_management;
+        cout<<"======================================================================="<<endl;
+        switch (student_management)
+        {
+            case 1:
+            {
+                do_exam(given_username);
+                break;
+            }
+            case 2:
+            {
+                show_grades(given_username);
+                break;
+            }
+            case 3:
+            {
+                break;
+            }
+            case 4:
+            {
+                break;
+            }
+            case 5:
+            {
+                show_exams(given_username);
+                break;
+            }
+            case 6:
+            {
+                cout<<"have a great day :)"<<endl;
+                break;
+            }
+        }
+    }while(student_management != 6);
+}
+void student::do_exam(const string &given_username)
+{
+    string line1, line2, exam_name, professor_name;
+    stringstream keeper, saver_file;
     bool find_name = false, find_exam = false, check_name = false;
     cout<<"your exam's name:\n";
     getline(cin>>ws ,exam_name);
@@ -69,14 +80,15 @@ void student::do_exam(string given_username)
         while(!saver_file.eof())
         {
             getline(saver_file,line1);
-            if(line1 == "show exam is: open")
+            professor_name = line1;
+            getline(saver_file,line1);
+            getline(saver_file,line1);
+            if(line1 == "student's username: " + given_username)
             {
-                getline(saver_file,line2);
-                if(line2 == "student's username: " + given_username)
+                find_name = true;
+                getline(saver_file,line1);
+                if(line1 == "show exam is: open")
                 {
-                    find_name = true;
-                    getline(saver_file,line1);
-                    string professor_name = line1;
                     getline(saver_file,line1);
                     if(line1 == "exam's name: " + exam_name)
                     {
@@ -88,25 +100,36 @@ void student::do_exam(string given_username)
                             while(!exams.eof())
                             {
                                 getline(exams, line1);
-                                getline(exams, line2);
-                                if(line1 == professor_name && line2 == "exam's name: " + exam_name)
+                                if(!line1.empty())
                                 {
-                                    while(line1 != "time of exam: ")
+                                    getline(exams, line2);
+                                    if(line1 == professor_name && line2 == "exam's name: " + exam_name)
                                     {
-                                        getline(exams, line1);
+                                        while(line1 != "time of exam: ")
+                                        {
+                                            getline(exams, line1);
+                                        }
+                                        if(line1 == "time of exam: ")
+                                        {
+                                            getline(exams, line1);
+                                            time = stod(line1)*60;
+                                        }
+                                        break;
                                     }
-                                    if(line1 == "time of exam: ")
+                                    else
                                     {
-                                        getline(exams, line1);
-                                        time = stod(line1)*60;
+                                        while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                            getline(exams, line1);
                                     }
-                                    break;
                                 }
+                                else
+                                    break;
                             }
                         }
                         else
                         {
-                            cout<<"there is a problem. please try again a few minutes later.\n";
+                            cerr<<"there is a problem. please try again a few minutes later.\n";
+                            return;
                         }
                         getline(saver_file,line1);
                         if(line1 == "situation: not answered.")
@@ -136,9 +159,9 @@ void student::do_exam(string given_username)
                                             getline(cin>>ws, answer);
                                             keeper<<(answer + '\n');
                                             getline(saver_file, line1);
-                                            keeper<<(line1 + '\n' + "grade of the student: " + '\n');
-                                            getline(saver_file, line1);
                                             keeper<<(line1 + '\n');
+                                            getline(saver_file, line1);
+                                            keeper<<(line1 + '\n' + "grade of the student: " + '\n');
                                         }
                                         else if(line1 == "type of question: t")
                                         {
@@ -154,9 +177,9 @@ void student::do_exam(string given_username)
                                             getline(saver_file, line1);
                                             keeper<<("student's answer: " + answer + '\n' + line1 + '\n');
                                             getline(saver_file, line1);
-                                            keeper<<(line1 + '\n' + "grade of the student: " + '\n');
-                                            getline(saver_file, line1);
                                             keeper<<(line1 + '\n');
+                                            getline(saver_file, line1);
+                                            keeper<<(line1 + '\n' + "grade of the student: " + '\n');
                                         }
                                         else
                                         {
@@ -173,7 +196,8 @@ void student::do_exam(string given_username)
                                 ofstream add2("shared_exams.txt", fstream::out|ios::app);
                                 if(!add2)
                                 {
-                                    cout<<"there is a problem. please try again a few minutes later.\n";
+                                    cerr<<"there is a problem. please try again a few minutes later.\n";
+                                    return;
                                 }
                                 else
                                 {
@@ -185,7 +209,8 @@ void student::do_exam(string given_username)
                             }
                             else
                             {
-                                cout<<"there is a problem. please try again a few minutes later.\n";
+                                cerr<<"there is a problem. please try again a few minutes later.\n";
+                                return;
                             }
                         }
                         else
@@ -194,36 +219,39 @@ void student::do_exam(string given_username)
                             break;
                         }
                     }
+                    else if(line1.empty())
+                    {
+                        break;
+                    }
                     else
                     {
                         while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                         {
-                            if(line1 == "")
-                                break;
-                            else
-                                getline(saver_file,line1);
+                            getline(saver_file,line1);
                         }
                     }
+                }
+                else if(line1.empty())
+                {
+                    break;
                 }
                 else
                 {
                     while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                     {
-                        if(line1 == "")
-                            break;
-                        else
-                            getline(saver_file,line1);
+                        getline(saver_file,line1);
                     }
                 }
+            }
+            else if(line1.empty())
+            {
+                break;
             }
             else
             {
                 while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                 {
-                    if(line1 == "")
-                        break;
-                    else
-                        getline(saver_file,line1);
+                    getline(saver_file,line1);
                 }
             }
         }
@@ -239,7 +267,188 @@ void student::do_exam(string given_username)
     }
     else
     {
-        cout<<"there is a problem. please try again a few minutes later.\n";
+        cerr<<"there is a problem. please try again a few minutes later.\n";
+        return;
+    }
+}
+void student::show_grades(const string &given_username)
+{
+    bool find = false;
+    string line1, line2;
+    fstream showing;
+    showing.open("grades.txt", fstream::in|ios::app|fstream::out);
+    if(showing.is_open())
+    {
+        while(getline(showing, line2))
+        {
+            getline(showing, line1);
+            if(line1 == "student's username: " + given_username)
+            {
+                find = true;
+                cout<<line2<<endl<<line1<<endl;
+                getline(showing, line1);
+                cout<<line1<<endl;
+            }
+            else
+                getline(showing, line1);
+        }
+        showing.close();
+        if(!find)
+        {
+            cout<<"can't find any result.\n";
+        }
+    }
+    else
+    {
+        cerr<<"there is a problem, please try again later.\n";
+        return;
+    }
+}
+void student::show_exams(const string &given_username)
+{
+    string line1, line2, line3, line4;
+    stringstream exams, showed;
+    bool find = false, present = true, find_st = false, not_show = false;
+    fstream showing_with_grades("checked_exams.txt", fstream::out|ios::app|fstream::in);
+    if(showing_with_grades)
+    {
+        while(getline(showing_with_grades, line1))
+        {
+            getline(showing_with_grades, line2);
+            if(line2 == "student's username: " + given_username)
+            {
+                getline(showing_with_grades, line3);
+                if(line3 == "show exam is: open")
+                {
+                    cout<<line1<<endl<<line2<<endl;
+                    getline(showing_with_grades, line1);
+                    exams<<line1;
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                    {
+                        getline(showing_with_grades, line1);
+                        cout<<line1<<endl;
+                    }
+                }
+                else
+                {
+                    getline(showing_with_grades, line1);
+                    cout<<"the permission of seeing the exam with name "<<line1.substr(13)<<" is token.\n";
+                    showed<<line1<<endl;
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                    {
+                        getline(showing_with_grades, line1);
+                    }
+                }
+            }
+            else if(line1.empty())
+            {
+                break;
+            }
+            else
+            {
+                while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                {
+                    getline(showing_with_grades, line1);
+                }
+            }
+        }
+        showing_with_grades.close();
+    }
+    else
+    {
+        cerr<<"there is a problem, please try again later.\n";
+        return;
+    }
+    ifstream showing;
+    showing.open("shared_exams.txt", ios::in);
+    if(showing.is_open())
+    {
+        while(getline(showing, line1))
+        {
+            find_st = find = not_show = false;
+            present = true;
+            if(!line1.empty())
+            {
+                for (int i = 0; i < 2; ++i)
+                {
+                    getline(showing, line2);
+                }
+                if(line2 == "student's username: " + given_username)
+                {
+                    find_st = true;
+                    getline(showing, line3);
+                    if(line3 == "show exam is: open")
+                    {
+                        getline(showing, line3);
+                        while (!exams.eof())
+                        {
+                            getline(exams, line4);
+                            if(line3 == line4)
+                            {
+                                find = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        not_show = true;
+                        getline(showing, line3);
+                        while(!showed.eof())
+                        {
+                            getline(showed, line4);
+                            if(line4 == line3)
+                            {
+                                present = false;
+                                break;
+                            }
+                        }
+                        if(present)
+                        {
+                            cout<<"the permission of seeing the exam with name "<<line3.substr(13)<<" is token.\n";
+                        }
+                    }
+                }
+                else
+                {
+                    while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        getline(showing, line1);
+                }
+            }
+            else
+                break;
+            if(!find && find_st && !not_show)
+            {
+                cout<<line1<<endl<<line2<<endl<<line3<<endl;
+                getline(showing, line1);
+                while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                {
+                    getline(showing, line1);
+                    if(line1 != "type of question: d" && line1 != "type of question: t" && line1 != "correct answer: a" && line1 != "correct answer: b" && line1 != "correct answer: c" && line1 != "correct answer: d")
+                        cout<<line1<<endl;
+                }
+            }
+            else if(line1.empty())
+            {
+                break;
+            }
+            else
+            {
+                while(line1 != "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                {
+                    getline(showing, line1);
+                }
+            }
+            exams.clear();
+            exams.seekg(0, ios::beg);
+            showed.clear();
+            showed.seekg(0, ios::beg);
+        }
+    }
+    else
+    {
+        cerr<<"there is a problem, please try again later.\n";
+        return;
     }
 }
 #endif //MINIPROJECT_STUDENT_H

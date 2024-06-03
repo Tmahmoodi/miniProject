@@ -33,8 +33,8 @@ public:
                         user_pass_professor.open("professor_user_pass.txt", fstream::in|ios::app|fstream::out);
                         if(!user_pass_professor.is_open())
                         {
-                            cout<<"there is a problem. please try again a few minutes later.\n";
-                            check = false;
+                            cerr<<"there is a problem. please try again a few minutes later.\n";
+                            return;
                         }
                         else
                         {
@@ -55,7 +55,8 @@ public:
                     fstream user_pass_professor("professor_user_pass.txt", ios::out|ios::app);
                     if(!user_pass_professor)
                     {
-                        cout<<"there is a problem. please make a try a few minutes later.\n";
+                        cerr<<"there is a problem. please make a try a few minutes later.\n";
+                        return;
                     }
                     else
                     {
@@ -82,8 +83,8 @@ public:
                             user_pass_professor.open("professor_user_pass.txt", fstream::in|fstream::out);
                             if(!user_pass_professor.is_open())
                             {
-                                cout<<"there is a problem. please try again a few minutes later.\n";
-                                find = true;
+                                cerr<<"there is a problem. please try again a few minutes later.\n";
+                                return;
                             }
                             else
                             {
@@ -151,8 +152,8 @@ public:
                             }
                             else
                             {
-                                cout<<"there is a problem. please try again a few minutes later.\n";
-                                find = true;
+                                cerr<<"there is a problem. please try again a few minutes later.\n";
+                                return;
                             }
                         }
                     }
